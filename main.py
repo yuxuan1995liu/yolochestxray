@@ -75,6 +75,8 @@ for i in select_images: #the random output index
     #print(img.shape)
     
     #Bounding box dimensions 
+    avg_x = (xmin+xmax)/2
+    abg_y = (ymin+ymax)/2
     bh = ymax - ymin
     bw = xmax - xmin
     
@@ -96,24 +98,17 @@ for i in select_images: #the random output index
             endx = nx+63
             endy = ny+63
 
-            #Checking if the center disease area is in the particular sub-image and recording the corresponding output pixel to be 1
-            if startx >= (xmin-32) and endx <= (xmax+32) and starty >= (ymin-32) and endy <= (ymax+32):   
-                #Setting output image pixel values 
+            #to generate heat map - divide into blocks    
+            if avg_x >= startx and avg_x <= endx and avg_y >= starty and avg_y <= endy:
                 Y[0,yaxis,xaxis] = 1
             else: 
                 Y[0,yaxis,xaxis] = 0
-                
-            if avg_x >= startx and avg_x <= endx and avg_y >= starty and avg_y <= endy:
-                Y_backup[0,yaxis,xaxis] = 1
-            else: 
-                Y_backup[0,yaxis,xaxis] = 0
                 
             #Moving horizontally
             nx = nx + 64
         #Moving Vertically
         ny = ny + 64
-    if np.array_equal(Y,np.zeros((1,16,16))):
-        Y = Y_backup
+
     #Adding Y to the label vector 
     Y_label_vectors.append(np.transpose(Y,axes = [1,2,0]))
     
@@ -175,6 +170,8 @@ for i in select_images_test: #the random output index
     by = avg_y
     
     #Bounding box dimensions 
+    avg_x = (xmin+xmax)/2
+    abg_y = (ymin+ymax)/2
     bh = ymax - ymin
     bw = xmax - xmin
     
@@ -195,27 +192,17 @@ for i in select_images_test: #the random output index
             starty = ny 
             endx = nx+63
             endy = ny+63
-
-            #Checking if the center disease area is in the particular sub-image and recording the corresponding output pixel to be 1
-            if startx >= (xmin-32) and endx <= (xmax+32) and starty >= (ymin-32) and endy <= (ymax+32):  
-                #Setting output image pixel values 
+                
+            if avg_x >= startx and avg_x <= endx and avg_y >= starty and avg_y <= endy:
                 Y[0,yaxis,xaxis] = 1
             else: 
                 Y[0,yaxis,xaxis] = 0
-                
-            if avg_x >= startx and avg_x <= endx and avg_y >= starty and avg_y <= endy:
-                Y_backup[0,yaxis,xaxis] = 1
-            else: 
-                Y_backup[0,yaxis,xaxis] = 0
                 
                 
             #Moving horizontally
             nx = nx + 64
         #Moving Vertically
         ny = ny + 64
-    #if no area in the bbox, use the area that at the center
-    if np.array_equal(Y,np.zeros((1,16,16))):
-        Y = Y_backup
     
     #Adding Y to the label vector 
     Y_label_vectors_test.append(np.transpose(Y,axes = [1,2,0]))
@@ -363,4 +350,11 @@ model.fit(np.array(X), np.array(Y_label_vectors), batch_size=batch_size, epochs=
 print('Fitted')
 
 #Save model weights
-model.save_weights('my_model_weights.h5')
+json_string = model.to_json()
+model.save_weights('model_heapmap_weights')
+
+with open('model_heatmap.pkl', 'wb') as jm:
+    pickle.dump(json_string, jm)
+
+with open('loss_history_heatmap.pkl', 'wb') as lo:
+    pickle.dump(history_cb.loss, lo)
