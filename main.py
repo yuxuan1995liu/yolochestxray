@@ -76,7 +76,7 @@ for i in select_images: #the random output index
     
     #Bounding box dimensions 
     avg_x = (xmin+xmax)/2
-    abg_y = (ymin+ymax)/2
+    avg_y = (ymin+ymax)/2
     bh = ymax - ymin
     bw = xmax - xmin
     
@@ -346,9 +346,10 @@ batch_size = 8
 model.compile(loss=loss_myconv_entire, optimizer=opt)
 print('Compiled')
 
-model.fit(np.array(X), np.array(Y_label_vectors), batch_size=batch_size, epochs=30, verbose=1, validation_data=(np.array(X_test), np.array(Y_label_vectors_test)), callbacks = [history_cb])
+model.fit(np.array(X), np.array(Y_label_vectors), batch_size=batch_size, epochs=15, verbose=1, validation_data=(np.array(X_test), np.array(Y_label_vectors_test)), callbacks = [history_cb])
 print('Fitted')
-
+#Save model
+model.save('model_15epochs.h5')
 #Save model weights
 json_string = model.to_json()
 model.save_weights('model_heapmap_weights')
