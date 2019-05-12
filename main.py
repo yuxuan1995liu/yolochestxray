@@ -26,6 +26,7 @@ K.set_image_dim_ordering('tf')
 print('Image ordering is tf check: ',K.image_dim_ordering())
 list_of_losses = []
 
+disease_label_dict = {"Infiltrate":0,"Mass":1,"Nodule":2,"Cardiomegaly":3,"Atelectasis":4,"Effusion":5,"Pneumonia":6,"Pneumothorax":7}
 import csv
 bbox_path = 'formatted_csv.csv'
 csv_as_list = []
